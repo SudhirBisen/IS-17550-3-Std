@@ -2,6 +2,7 @@
 #Ref Test Std calculation as per IS 17550
 
 ## Import all essential library
+
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -12,8 +13,13 @@ import seaborn as sns
 import warnings
 warnings.filterwarnings("ignore")
 
+
+
+## Import raw data
 SxS_df = pd.read_excel(r'D:\HAIL_DATA-1\E drive Data\2022\New Energy Norms _2023\SxS_EnergyData.xlsx', sheet_name='Raw Data')
 SxS_df.columns
+
+## length of total data in Raw data
 Power = SxS_df['Power']
 Power =np.array(Power)
 print('Length of data point in raw data: ', Power.shape)
@@ -29,6 +35,11 @@ plt.show()
 Freezer_Temp = SxS_df['Favg']
 Fridge_Temp = SxS_df['Ravg']
 Int_Energy = SxS_df ['Int_Power']
+
+
+# We have to calculate first defrost in data
+## Defrost calcuation in Raw data
+
 Defrost_start = []
 x=len(Power) 
 for c in range (x-1):
@@ -47,6 +58,8 @@ for c in range (x-1):
 print(Defrost_end)
 
 print('No of defrost in data :', len(Defrost_end))
+
+## All paramter define/short for X period
 #for n in range (x):
  #   if Power[n] > 150:
  #       print (n)
@@ -57,6 +70,9 @@ Power_x = Power[:aa,]
 Power_x_period = Power_x
 plt.figure(figsize=(500, 100))
 plt.plot(Power_x, color = 'r', linewidth = '10')
+
+
+## average power calculation function for each zone
 def average_power (raw_data):
     f = len(raw_data)
     number_cycle =[]
@@ -76,7 +92,7 @@ def average_power (raw_data):
   print('No of data length in X period ', len(Power_x))
   
   
-  
+ ## Data cleaning for on off cycle because too much flutuation in data
 
 def cycle_time_data_clean (xxx):
 
@@ -95,7 +111,9 @@ def cycle_time_data_clean (xxx):
     
     
     return xxx
-    
+   
+## On Off cycle calculation function
+ 
     def on_off_cycle (raw_data):
     q = len(raw_data)
     on_cycle =[]        
@@ -114,7 +132,7 @@ def cycle_time_data_clean (xxx):
         
     return on_cycle , off_cycle     
             
-            
+## Compressor Run percentage calculation in stable period use clean data           
 def run_per (on , off):
     percentage = []
     x = len (on)
@@ -127,13 +145,19 @@ def run_per (on , off):
     
   Power_x = cycle_time_data_clean (Power_x)
   
-  cycle_average_value, no_cycle_x_period = average_power (Power_x)
+  
+## Cycle average value in period calculation  
+cycle_average_value, no_cycle_x_period = average_power (Power_x)
 length = len (cycle_average_value)
 print('Number of cycle in X period: ', length )
 print('Each cycle avergae: ', cycle_average_value)
 #print(no_cycle_x_period)
 #print(cycle_average_value)
 print ('Cycle value start and end point: ',  no_cycle_x_period )
+
+
+
+## Property calculation for each cycle points
 
 def all_temp_data (no_cycle_x_period, req_data):
     data_store= []
@@ -144,7 +168,9 @@ def all_temp_data (no_cycle_x_period, req_data):
         xx = np.mean(req_data[a:b])
         data_store.append(xx)             
     return data_store
-    
+ 
+## Calculate all value in X period
+
 Power_xxx = all_temp_data (no_cycle_x_period, Power_x)
 print(Power_xxx)
 
@@ -154,7 +180,7 @@ print('Stable each cycle data ', Power_xxx)
 power_avg_x =np.mean(Power_xxx[(length-8):(length-2)])
 print('Average Power in X Period :', power_avg_x)
 
-# Freezer Room average temperature in X period 
+## Freezer Room average temperature in X period 
 freezer_temp_x = all_temp_data (no_cycle_x_period, Freezer_Temp)
 print('Stable each cycle data frezzer room ', freezer_temp_x)
 
@@ -164,7 +190,7 @@ print('Average Freezer in X Period :', freezer_avg_x)
 #Freezer_avg_x =np.mean(no_cycle_x_period[(length-8):])
 #print('Average Freezer Temperature  X Period :', Freezer_avg_x)
 
-# Frride Room average temperature in X period 
+## Frride Room average temperature in X period 
 fridge_temp_x = all_temp_data (no_cycle_x_period, Fridge_Temp)
 print('Stable each cycle data fridge room ', fridge_temp_x)
 
@@ -178,7 +204,8 @@ print ('No of cycle period first time= ', no_cycle_x_period[-6])
 x_Time = (x_time_End - x_time_Start ) /120 
 print ('X Period in Hours  = ', x_Time      )
 
-# data for power in Y period
+## Calculate all value in Y period
+## data for power in Y period
 ab = int(Defrost_end[0])
 bb = int(Defrost_start[1])
 Power_y = Power[ab:bb,]
@@ -233,6 +260,7 @@ print ('No of cycle period first time= ', no_cycle_y_period[-6])
 y_Time = (y_time_End - y_time_Start ) /120 
 print ('X Period in Hours  = ', y_Time      )
 
+## Now calculated Other paramter between X - Y Period
 
 #Energy at end up  X Period						
 #Energy at end up  Y Period						
@@ -270,7 +298,7 @@ Power_avg_xy = np.mean(Power[X_time_End:Y_time_End])
 print('Average Power at end up  X Period to end up Y period; ', Power_avg_xy)
 
 
-# Average Freezer Temperature at end up  X Period to end up Y period
+## Average Freezer Temperature at end up  X Period to end up Y period
 Freezer_avg_xy = np.mean(Freezer_Temp[X_time_End:Y_time_End])
 
 print('Average Freezer Temperature at end up  X Period to end up Y period; ', Freezer_avg_xy)
@@ -282,14 +310,14 @@ Fridge_avg_xy = np.mean(Fridge_Temp[X_time_End:Y_time_End])
 print('Average Fridge Temperature at end up  X Period to end up Y period; ', Fridge_avg_xy)
 
 
-# Estimated Time at end up  X Period to end up Y period
+## Estimated Time at end up  X Period to end up Y period
 print ('Time at End up  x Period : ', X_time_End )
 print ('Time at End up  y Period : ', Y_time_End )
 
 Est_time_xy =(Y_time_End - X_time_End ) /120
 print ('Estimated Time at end up  X Period to end up Y period : ', Est_time_xy )
 
-# Estimated  Energy at end up  X Period to end up Y period
+## Estimated  Energy at end up  X Period to end up Y period
 Est_Int_Energy_xy = Int_Energy[Y_time_End] - Int_Energy[x_time_End]
 print ('Estimated  Energy at end up  X Period to end up Y period : ', Est_Int_Energy_xy    )
 
@@ -309,11 +337,11 @@ print ('Estimated  Energy at end up  X Period to end up Y period : ', Est_Int_En
 #Average Fridge Temperature  in  F Period						
 
 
-# D period taken from before of 1st defrost
+## D period taken from before of 1st defrost
 no_cycle_d_period = no_cycle_x_period[-9:]
 print('data ponit taken for D period: ' , no_cycle_d_period  )
 
-# f period taken from before of 1st defrost
+## f period taken from before of 1st defrost
 no_cycle_f_period = no_cycle_y_period[2:11] 
 no_cycle_f_period = [ x + ab for x in no_cycle_f_period]
 print('data ponit taken for D period: ' , no_cycle_f_period  )
@@ -393,7 +421,7 @@ print('Average Freezer Temperature in  F Period; ', Fridge_avg_F)
 #Estimated  Time at   D Period Start to  F period end						
 
 
-#Estimated  Energy at end up  D Period to end up F period
+## Estimated  Energy at end up  D Period to end up F period
 
 Est_Int_Energy_DF = Int_Energy[F_time_End] - Int_Energy[D_time_End]
 print ('Estimated  Energy at end up  D Period to end up F period : ', Est_Int_Energy_df    )
@@ -401,7 +429,7 @@ print ('Estimated  Energy at end up  D Period to end up F period : ', Est_Int_En
 Est_Int_Energy_DsFe = Int_Energy[F_time_End] - Int_Energy[D_time_Start]
 print ('Estimated  Energy at Start of  D Period to end up F period : ', Est_Int_Energy_DsFe    )
 
-#Estimated  Time at end up  D Period to end up F period
+## Estimated  Time at end up  D Period to end up F period
 
 
 print ('Time at End up  F Period : ', F_time_End )
@@ -411,19 +439,19 @@ Est_time_DF =(F_time_End - D_time_End ) /120
 print ('Estimated Time at end up  X Period to end up Y period : ', Est_time_df )
 
 
-#Estimated  Average Freezer at end up  D Period to end up F period
+## Estimated  Average Freezer at end up  D Period to end up F period
 
 Freezer_avg_DF = np.mean(Freezer_Temp[D_time_End:F_time_End])
 print('Estimated  Average Freezer at end up  D Period to end up F period: ', Freezer_avg_DF)
 
 
-#Estimated  Average Fridge at end up  D Period to end up F period
+## Estimated  Average Fridge at end up  D Period to end up F period
 
 Fridge_avg_DF = np.mean(Fridge_Temp[D_time_End:F_time_End])
 
 print('Average Freezer Temperature in  D Period; ', Fridge_avg_DF)
 
-#Estimated  Average Power at   D Period &  F period
+## Estimated  Average Power at   D Period &  F period
 Power_avg_df = (Power_avg_D + Power_avg_F)/2
 
 print('Estimated  Average Power at   D Period &  F period: ', Power_avg_df)
@@ -475,7 +503,7 @@ print ('Estimated  Time (hours) at   D Period Start to  F period end: ', Est_tim
 #Average temperature for the compartment R over a complete defrost control cycle
 
 
-# Accumulated temperature difference over time in compartment F (∆Thdf_F)
+## Accumulated temperature difference over time in compartment F (∆Thdf_F)
 del_Thdf_F =  Est_time_df *(Freezer_avg_DF - Freezer_avg_df)
 
 print ('Accumulated temperature difference over time in compartment F (∆Thdf_F) : ' , del_Thdf_F)
@@ -486,7 +514,7 @@ del_Thdf_R =  Est_time_df *(Fridge_avg_DF - Fridge_avg_df)
 
 print ('Accumulated temperature difference over time in compartment R (∆Thdf_R) : ' , del_Thdf_R)
 
-# Additional energy consumed by the refrigerating appliance for defrost and recovery period (∆Edf)
+## Additional energy consumed by the refrigerating appliance for defrost and recovery period (∆Edf)
 
 del_Edf =    Est_Int_Energy_DsFe - (Power_avg_df *Est_time_df )  
 
@@ -496,8 +524,8 @@ print ('Additional energy consumed by the refrigerating appliance for defrost an
 data_power_x = cycle_time_data_clean (Power_x_period)
 on_time, off_time =  on_off_cycle (data_power_x)
 
-# on_t = len(on_time)
-# off_t =len(off_time)
+#on_t = len(on_time)
+#off_t =len(off_time)
 
 #run_per_comp = run_per (on_time, off_time)
 #comp_run_perct = np.mean (run_per_comp[10])
@@ -508,37 +536,37 @@ print('compressor run % calculated based on stable period', comp_run_perct)
 #maximum possible defrost interval ∆tdmax 
 del_tdmax = 39/comp_run_perct
 
-# minimum possible defrost interval (∆tdmini)
+## minimum possible defrost interval (∆tdmini)
 del_tdmin = 6/comp_run_perct
 
-# Actual defrost interval in data 
+## Actual defrost interval in data 
 del_tdact = (Defrost_start[1] -Defrost_start[0] )/120
 print ('Actual defrost interval in data  (∆tdact) : ' , del_tdact )
 
-#Defrost interval for an ambient temperature of 32 °C (∆tdf)
+## Defrost interval for an ambient temperature of 32 °C (∆tdf)
 del_tdf = (del_tdmax*del_tdmin)/(0.2*(del_tdmax-del_tdmin)+del_tdmin)
 #del_tdf = 52
 print('Defrost interval for an ambient temperature of 32 °C (∆tdf) : ', del_tdf)
 
 
 
-#Steady state power for the selected defrost control cycle (PSS2)
+## Steady state power for the selected defrost control cycle (PSS2)
 PSS2 =  (Est_Int_Energy_xy-del_Edf) / Est_time_xy
 
 print ('Steady state power for the selected defrost control cycle (PSS2)' , PSS2)
 
-#Energy in Wh over a period of 24hr
+## Energy in Wh over a period of 24hr
 E_daily = PSS2*24 + (del_Edf*24)/del_tdf
 
 print ('Energy in Wh over a period of 24hr (E_daily)' , E_daily)
 
 
-#Energy in Wh over a period of year (unit)
+## Energy in Wh over a period of year (unit)
 E_daily_year = E_daily*0.365
 
 print ('Energy in Wh over a period of year (unit) (E_daily_year)' , E_daily_year)
 
-#steady state temperature in compartment F that occurs in the whole test period used for SS2 in degrees C;						
+## steady state temperature in compartment F that occurs in the whole test period used for SS2 in degrees C;						
 Tss2_F =  Freezer_avg_xy-   (del_Thdf_F/Est_time_xy)
 print ('steady state temperature in compartment F that occurs in the whole test period used for SS2' , Tss2_F)
 #(del_Thdf_F/Est_time_xy)
@@ -567,16 +595,17 @@ Percentage_increase_energy = (E_daily-H24_energy)*100 /H24_energy
 
 print ('Percentage increase in energy due to defrost factor :',Percentage_increase_energy,'%' )
 
-# Average Freezer and fridge Temperature increase 
+## Average Freezer and fridge Temperature increase 
 print('Average Freezer Temperature at end up  X Period to end up Y period; ', Freezer_avg_xy)
 print('Average Fridge Temperature at end up  X Period to end up Y period; ', Fridge_avg_xy)
 
-# Calculated Average Freezer and fridge Temperature
+## Calculated Average Freezer and fridge Temperature
 
 print('Actual Freezer Temperature increase at end up  X Period to end up Y period; ', T_favg)
 print('Actual Freezer Temperature increase at end up  X Period to end up Y period; ', T_ravg)
 
-# Percentage change in F & R Temperature 
+## Percentage change in F & R Temperature 
+
 Percentage_increase_F_Temp = (Freezer_avg_xy-T_favg)*100 /Freezer_avg_xy
 Percentage_increase_R_Temp = (T_ravg-Fridge_avg_xy)*100 /Fridge_avg_xy
 
