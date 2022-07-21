@@ -1,4 +1,4 @@
-## IS-17550-3-Std
+## IS-17550-3-Std for SxS Ref
 #Ref Test Std calculation as per IS 17550
 
 ## Import all essential library
