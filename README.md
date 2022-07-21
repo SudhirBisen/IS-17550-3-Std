@@ -1,5 +1,7 @@
-# IS-17550-3-Std
-Ref Test Std calculation as per IS 17550
+## IS-17550-3-Std
+#Ref Test Std calculation as per IS 17550
+
+## Import all essential library
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -9,6 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings
 warnings.filterwarnings("ignore")
+
 SxS_df = pd.read_excel(r'D:\HAIL_DATA-1\E drive Data\2022\New Energy Norms _2023\SxS_EnergyData.xlsx', sheet_name='Raw Data')
 SxS_df.columns
 Power = SxS_df['Power']
